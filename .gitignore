@@ -1,5 +1,16 @@
 # Download Directory
 downloads/
 
+web_profile/
+
+# PDF file
+*.pdf
+
 # Sqlite database
 *.db
+
+# Python
+.venv/
+venv/
+__pycache__
+*.pyc
