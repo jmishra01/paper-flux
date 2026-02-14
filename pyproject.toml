@@ -1,0 +1,11 @@
+[project]
+name = "papermanager"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.9"
+dependencies = [
+    "pypdf2>=3.0.1",
+    "pyqt6>=6.10.2",
+    "pyqt6-webengine>=6.10.0",
+    "requests>=2.32.5",
+]
