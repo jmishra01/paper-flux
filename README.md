@@ -1,6 +1,6 @@
 # 📄 PaperFlux
 ⚡ High-Performance Research Paper & Book Viewer for Desktop
-Built with PyQt6 + PyMuPDF
+Built with PyQt6 + QWebEngineView
 
 ## 🚀 Overview
 PaperFlux is a lightweight, high-performance PDF viewer designed specifically for research papers, academic books, and large technical documents.
@@ -25,12 +25,6 @@ It is ideal for researchers, students, developers, and professionals working wit
 - Clickable internal links (Table of Contents, references, footnotes)
 - Jump-to-page navigation
 - External URL support (optional)
-
-## ⚡ Performance Optimized
-* Lazy page rendering
-* Minimal memory footprint
-* No Chromium / WebEngine overhead
-* Efficient page caching
 
 ## 🧠 Research Workflow
 * Designed for academic papers
