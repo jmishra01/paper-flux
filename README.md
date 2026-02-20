@@ -26,12 +26,6 @@ It is ideal for researchers, students, developers, and professionals working wit
 - Jump-to-page navigation
 - External URL support (optional)
 
-## ⚡ Performance Optimized
-* Lazy page rendering
-* Minimal memory footprint
-* No Chromium / WebEngine overhead
-* Efficient page caching
-
 ## 🧠 Research Workflow
 * Designed for academic papers
 * Handles large books smoothly
