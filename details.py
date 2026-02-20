@@ -1,8 +1,7 @@
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel, QWidget, QLineEdit, QComboBox, QSizePolicy, QPushButton
+from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel, QWidget, QLineEdit, QTextEdit, QComboBox, QSizePolicy, QPushButton
 
-from database import DATABASE
-
+from database import Paper, Folder
 
 class Details(QFrame):
     on_title_changed = pyqtSignal(str)
@@ -11,28 +10,49 @@ class Details(QFrame):
     def __init__(self):
         super().__init__()
 
-        self.setFixedWidth(200)
+        self.setStyleSheet("""
+            background-color: #383a40;
+        """)
+
+        self.title_value = None
+        self.paper_id = None
         self.file_path_value = None
         self.arxiv_id = None
         self.title = None
         self.folder_name = None
         self.file_path = None
-        self.setStyleSheet(""" """)
+        self.updated_title = ""
+        self.updated_category = ""
 
         self.layout = QVBoxLayout()
         self.setLayout(self.layout)
 
-        self.categories = [i[0] for i in DATABASE.get_all_folder()]
+        self.categories = [i[0] for i in Folder.get_all_folders()]
+
+        separator1 = QLabel()
+        separator1.setFixedHeight(2)
+        separator1.setStyleSheet("""
+        border: 1px solid #4f545c;
+        """)
+        separator2 = QLabel()
+        separator2.setFixedHeight(2)
+        separator2.setStyleSheet("""
+        border: 1px solid #4f545c;
+        """)
 
         self.layout.addWidget(self.add_title())
+
+        self.layout.addWidget(separator1)
+
         self.layout.addWidget(self.add_category())
+
+        self.layout.addWidget(separator2)
+
         self.layout.addWidget(self.add_file_path())
 
         self.save_changes = QPushButton("Save Changes")
-        self.updated_title = ""
-        self.updated_category = ""
-        self.save_changes.clicked.connect(self.save_changes_callback)
         self.save_changes.setVisible(False)
+        self.save_changes.clicked.connect(self.save_changes_callback)
 
         self.layout.addWidget(self.save_changes)
 
@@ -40,13 +60,13 @@ class Details(QFrame):
 
     def save_changes_callback(self):
         if self.updated_title != self.title:
-            DATABASE.update_paper_title(self.arxiv_id, self.updated_title)
+            Paper.update_paper_title(self.paper_id, self.updated_title)
             self.title = self.updated_title
             self.on_title_changed.emit(self.updated_title)
 
         if self.updated_category != self.folder_name:
-            folder_id = DATABASE.get_folder_id(self.updated_category)[0]
-            DATABASE.update_folder_in_paper(self.arxiv_id, folder_id)
+            folder_id = Folder.get_folder_id_for_title(self.updated_category)[0]
+            Paper.update_folder_id(self.paper_id, folder_id)
             self.folder_name = self.updated_category
             self.on_category_changed.emit(True)
 
@@ -56,28 +76,31 @@ class Details(QFrame):
         title_widget = QWidget()
         title_layout = QVBoxLayout(title_widget)
 
-        title_widget.setFixedHeight(80)
+        title_widget.setFixedHeight(150)
         title_widget.setContentsMargins(0, 0, 0, 0)
         title_layout.setContentsMargins(0, 0, 0, 0)
         title_layout.setSpacing(0)
 
         title_label = QLabel("Title")
         title_label.setFixedHeight(40)
+        title_label.setStyleSheet("""
+        padding: 0px;
+        font: 24px sans-serif;
+        font-weight: bold;
+        """)
         title_layout.addWidget(title_label)
 
-        self.title_value = QLineEdit()
-        self.title_value.setFixedHeight(40)
+        self.title_value = QTextEdit()
+        self.title_value.setFixedHeight(100)
+        self.title_value.setStyleSheet("""
+        background-color: #444;
+        """)
         title_layout.addWidget(self.title_value)
-        self.title_value.textEdited.connect(self.update_title)
-
+        self.title_value.textChanged.connect(self.update_title)
         return title_widget
 
-    def update_title(self, value):
-        cursor_pos = self.title_value.cursorPosition()
-        self.title_value.blockSignals(True)
-        self.title_value.setText(value)
-        self.title_value.blockSignals(False)
-        self.title_value.setCursorPosition(cursor_pos)
+    def update_title(self):
+        value = self.title_value.toPlainText()
         self.updated_title = value
         self.save_changes.setVisible(True)
 
@@ -89,6 +112,12 @@ class Details(QFrame):
         category_layout.setSpacing(0)
 
         category_label = QLabel("Category")
+
+        category_label.setStyleSheet("""
+        padding: 0px;
+        font: 24px sans-serif;
+        font-weight: bold;
+        """)
         category_label.setFixedHeight(40)
         category_layout.addWidget(category_label)
 
@@ -110,7 +139,7 @@ class Details(QFrame):
         current_text = self.category_combo.currentText()
         self.category_combo.blockSignals(True)
         self.category_combo.clear()
-        self.categories = [i[0] for i in DATABASE.get_all_folder()]
+        self.categories = [i[0] for i in Folder.get_all_folders()]
         self.category_combo.addItems(self.categories)
         self.category_combo.setCurrentIndex(self.categories.index(current_text))
 
@@ -124,15 +153,20 @@ class Details(QFrame):
         file_path_layout.setSpacing(0)
 
         file_path_label = QLabel("File Path")
+        file_path_label.setStyleSheet("""
+        padding: 0px;
+        font: 24px sans-serif;
+        font-weight: bold;
+        """)
         file_path_label.setFixedHeight(40)
         file_path_layout.addWidget(file_path_label)
 
         self.file_path_value = QLabel()
         self.file_path_value.setStyleSheet("""
-        background-color: #444;
-        padding: 2px;
-        border: 1px solid #555;
-        border-radius: 6px;
+            background-color: #444;
+            padding: 2px;
+            border: 1px solid #555;
+            border-radius: 6px;
         """)
         self.file_path_value.setWordWrap(True)
         self.file_path_value.setAlignment(
@@ -143,20 +177,18 @@ class Details(QFrame):
         return file_path_widget
 
     def update_display(self, paper_id: str):
-        details = DATABASE.get_papers_using_id(paper_id)
+        details = Paper.get_paper_using_id(paper_id)
+        self.save_changes.setVisible(False)
         if details is None:
             self.setVisible(False)
             return
 
-        self.save_changes.setVisible(False)
         self.update_categories()
 
-        (self.arxiv_id, self.title, self.folder_name, self.file_path) = details
+        (self.paper_id, self.arxiv_id, self.title, self.folder_name, self.file_path) = details
 
         self.updated_title = self.title
         self.updated_category = self.folder_name
-
-
 
         self.title_value.setText(self.title)
         self.category_combo.setCurrentIndex(self.categories.index(self.folder_name))

@@ -1,10 +1,12 @@
 import os
 import urllib.request
-from enum import Enum
 
 from bs4 import BeautifulSoup
 
-FILE_PATH = os.path.dirname(os.path.realpath(__file__)) + "/downloads"
+FILE_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "downloads")
+
+if not os.path.exists(FILE_PATH):
+    os.makedirs(FILE_PATH)
 
 os.environ["QT_QUICK_BACKEND"] = "software"
 os.environ["QTWEBENGINE_DISABLE_GPU"] = "1"

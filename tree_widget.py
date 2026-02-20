@@ -1,12 +1,12 @@
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QTreeWidget, QTreeWidgetItem, QApplication
 
-from database import DATABASE
+from database import Paper, Folder
 
 
 class TreeWidget(QTreeWidget):
 
-    ItemChanged = pyqtSignal(str)
+    ItemChanged = pyqtSignal(int)
 
     def __init__(self, parent=None):
         super(TreeWidget, self).__init__(parent)
@@ -16,14 +16,14 @@ class TreeWidget(QTreeWidget):
     def _init(self):
         self.setHeaderHidden(True)
         self.setColumnCount(1)
-        self.setIndentation(12)
+        self.setIndentation(15)
 
         self.itemClicked.connect(self.on_clicked_handler)
         self.load_categories()
 
     def on_clicked_handler(self, item):
-        if arxiv_id := item.data(0, Qt.ItemDataRole.UserRole):
-            self.ItemChanged.emit(arxiv_id)
+        if paper_id := item.data(0, Qt.ItemDataRole.UserRole):
+            self.ItemChanged.emit(paper_id)
 
     def get_category(self, title) -> QTreeWidgetItem:
         style = QApplication.style()
@@ -33,16 +33,16 @@ class TreeWidget(QTreeWidget):
         return category
 
     def load_categories(self):
-        for (folder, ) in DATABASE.get_all_folder():
+        for (folder, ) in Folder.get_all_folders():
             _ = self.get_category(folder)
 
     def get_selected_category(self):
         if ((items := self.selectedItems())
                 and (item := items[0])
                 and (item_text := item.text(0))):
-            folder_id = DATABASE.get_folder_id(item_text)
+            folder_id = Folder.get_folder_id_for_title(item_text)
             if folder_id is None:
-                folder_id = DATABASE.get_folder_id_from_title(item_text)
+                folder_id = Paper.get_folder_id_for_title(item_text)
                 if folder_id is None:
                     return 1
             return folder_id[0]
