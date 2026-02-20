@@ -1,6 +1,5 @@
-from AnyQt.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QComboBox,
-                             QPushButton, QWidget, QHBoxLayout)
+                             QPushButton, QHBoxLayout, QLabel)
 
 from database import Folder
 
@@ -45,3 +44,17 @@ class CategoryDialog(QDialog):
 
     def close_without_save(self):
         self.close()
+
+class WarningDialog(QDialog):
+    def __init__(self, message: str):
+        super().__init__()
+        self.setWindowTitle("Warning")
+
+        label = QLabel(message)
+
+        layout = QVBoxLayout()
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(10)
+        layout.addWidget(label)
+        self.setLayout(layout)
+

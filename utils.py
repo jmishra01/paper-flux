@@ -3,6 +3,8 @@ import urllib.request
 
 from bs4 import BeautifulSoup
 
+from database import Paper
+
 FILE_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), "downloads")
 
 if not os.path.exists(FILE_PATH):
@@ -38,3 +40,9 @@ def arxiv_scrapper(arxiv_id):
 
     return title, authors, abstract
 
+
+def get_directory():
+    recent_added_local_pdf_path = Paper.get_file_path_of_last_local_pdf()
+    if recent_added_local_pdf_path:
+        return os.path.dirname(recent_added_local_pdf_path[0])
+    return "/Users/jitendramishra"

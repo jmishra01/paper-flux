@@ -1,10 +1,11 @@
 import os
 import re
-import urllib.request as request
-import requests
 import sqlite3
-from requests.exceptions import HTTPError
+import urllib.request as request
 from uuid import uuid4
+
+import requests
+from requests.exceptions import HTTPError
 
 from custom_widget import CategoryDialog
 from database import Paper, Folder

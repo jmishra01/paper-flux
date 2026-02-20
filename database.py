@@ -83,8 +83,9 @@ class Paper:
                     website_url=website_url,
                     folder_id=2
                 )
-            except Exception as e:
+            except:
                 pass
+
 
     @staticmethod
     def insert_row(arxiv_id: str,
@@ -110,6 +111,16 @@ class Paper:
         """
         return DATABASE.conn.execute(query).fetchall()
 
+    @staticmethod
+    def get_last_n_viewed_papers(limit: int = 5):
+        query = """
+        SELECT p.id, p.title, f.folder_name, p.file_path
+        FROM papers p
+        INNER JOIN folders f ON p.folder_id = f.id
+        ORDER BY p.last_view DESC, p.added_at DESC
+        LIMIT ?;
+        """
+        return DATABASE.conn.execute(query, (limit,)).fetchall()
 
     @staticmethod
     def search_paper(title: str):
@@ -172,6 +183,7 @@ class Paper:
         """
         return DATABASE.conn.execute(query).fetchone()
 
+
     @staticmethod
     def get_paper_path(paper_id):
         query = """
@@ -185,6 +197,14 @@ class Paper:
         UPDATE papers SET last_view = ? WHERE id = ?
         """
         DATABASE.execute_with_args(query, (datetime.datetime.now(), paper_id))
+
+    @staticmethod
+    def get_selected_folder_id():
+        query = """
+        SELECT folder_id from papers WHERE is_active = FALSE
+        ORDER BY last_view DESC, added_at DESC LIMIT 1
+        """
+        return DATABASE.conn.execute(query).fetchone()
 
     @staticmethod
     def get_paper_using_id(paper_id):
@@ -204,6 +224,24 @@ class Paper:
         SELECT folder_id FROM papers WHERE title = ?
         """
         return DATABASE.conn.execute(query, (title,)).fetchone()
+
+    @staticmethod
+    def get_id_title_and_folder_name_for_file_path(file_path: str):
+        query = """
+        SELECT p.id, p.title, f.folder_name FROM papers p inner join folders f
+        ON p.folder_id = f.id
+        WHERE p.file_path = ?
+        LIMIT 1
+        """
+        return DATABASE.conn.execute(query, (file_path,)).fetchone()
+
+    @staticmethod
+    def get_file_path_of_last_local_pdf():
+        query = """
+        SELECT file_path FROM papers WHERE is_active = 1 and website_url is NULL
+        order by added_at DESC LIMIT 1
+        """
+        return DATABASE.conn.execute(query).fetchone()
 
     @staticmethod
     def change_folder_id(folder_id: int, new_folder_id: int):
