@@ -18,7 +18,7 @@ class InputWebsite(QDialog):
         website_name_layout = QHBoxLayout()
         website_name_layout.setSpacing(5)
         self.website_name_label = QLabel("Website Name")
-        self.website_name_label.setAlignment(Qt.AlignCenter)
+        self.website_name_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.website_name_value = QLineEdit()
         self.website_name_value.setPlaceholderText("Enter Website Name")
@@ -30,7 +30,7 @@ class InputWebsite(QDialog):
         website_url_layout.setSpacing(5)
         self.website_name_label = QLabel("Website Name")
         self.website_url_label = QLabel("Website URL")
-        self.website_url_label.setAlignment(Qt.AlignCenter)
+        self.website_url_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.website_url_value = QLineEdit()
         self.website_url_value.setPlaceholderText("Enter Website URL")
