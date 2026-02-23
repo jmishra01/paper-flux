@@ -1,3 +1,4 @@
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import (QDialog, QVBoxLayout, QComboBox,
                              QPushButton, QHBoxLayout, QLabel)
 
@@ -5,8 +6,7 @@ from database import Folder
 
 
 class CategoryDialog(QDialog):
-    close_with_selected_category = False
-
+    selected_category = pyqtSignal(str)
     def __init__(self):
         super().__init__()
 
@@ -31,19 +31,13 @@ class CategoryDialog(QDialog):
         btn_save.clicked.connect(self.close_with_save)
         h_layout.addWidget(btn_save)
 
-        btn_close = QPushButton("Close")
-        btn_close.clicked.connect(self.close_without_save)
-        h_layout.addWidget(btn_close)
-
         layout.addLayout(h_layout)
         self.setLayout(layout)
 
     def close_with_save(self):
-        self.close_with_selected_category = True
+        self.selected_category.emit(self.combo.currentText())
         self.close()
 
-    def close_without_save(self):
-        self.close()
 
 class WarningDialog(QDialog):
     def __init__(self, message: str):

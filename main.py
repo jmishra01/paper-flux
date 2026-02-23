@@ -195,7 +195,7 @@ class PaperFlux(QMainWindow):
         selected_item: QTreeWidgetItem = self.tree_widget.selectedItems()[0]
         text = selected_item.text(0)
         if paper_id := Paper.get_paper_id_of_title(text):
-            Paper.hard_delete_row(paper_id[0])
+            Paper.soft_delete_row(paper_id[0])
 
             if last_viewed_paper_id := Paper.get_last_viewed_paper():
                 self.render_item(last_viewed_paper_id[0])

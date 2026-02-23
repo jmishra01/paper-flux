@@ -15,11 +15,9 @@ from utils import arxiv_scrapper, FILE_PATH
 def save_open_page(url: str, folder_id=None):
     category_dialog = CategoryDialog()
 
-    if category_dialog.exec():
-        if not category_dialog.close_with_selected_category:
-            return
-        category_title = category_dialog.combo.currentText()
-        folder_id = Folder.get_folder_id_for_title(category_title)[0]
+    category_dialog.exec()
+    category_title = category_dialog.combo.currentText()
+    folder_id = Folder.get_folder_id_for_title(category_title)[0]
 
     if re.search(r"^https?://medium.com", url):
         save_medium_webpage(url, folder_id=folder_id)

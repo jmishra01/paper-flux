@@ -107,6 +107,7 @@ class Paper:
         SELECT p.id, p.title, f.folder_name, p.file_path
         FROM papers p
         INNER JOIN folders f ON p.folder_id = f.id
+        WHERE p.is_active = TRUE
         ORDER BY p.last_view DESC, p.added_at DESC;
         """
         return DATABASE.conn.execute(query).fetchall()
@@ -117,6 +118,7 @@ class Paper:
         SELECT p.id, p.title, f.folder_name, p.file_path
         FROM papers p
         INNER JOIN folders f ON p.folder_id = f.id
+        WHERE p.is_active = TRUE
         ORDER BY p.last_view DESC, p.added_at DESC
         LIMIT ?;
         """
@@ -128,7 +130,7 @@ class Paper:
         SELECT p.id, p.title, f.folder_name, p.file_path
         FROM papers p
         INNER JOIN folders f ON p.folder_id = f.id
-        WHERE p.title LIKE ?
+        WHERE p.title LIKE ? and p.is_active = TRUE
         ORDER BY p.last_view DESC, p.added_at DESC;
         """
         return DATABASE.conn.execute(query, (f'%{title}%', )).fetchall()
@@ -136,7 +138,7 @@ class Paper:
     @staticmethod
     def get_url(paper_id: str):
         query = """
-        SELECT website_url FROM papers WHERE id = ? LIMIT 1;
+        SELECT website_url FROM papers p WHERE id = ? and p.is_active = 1 LIMIT 1;
         """
         return DATABASE.conn.execute(query, (paper_id,)).fetchone()
 
@@ -165,21 +167,22 @@ class Paper:
     @staticmethod
     def get_paper_id_of_title(title: str):
         query = """
-        SELECT id FROM papers WHERE title = ? LIMIT 1
+        SELECT id FROM papers WHERE title = ? AND is_active = TRUE LIMIT 1
         """
         return DATABASE.conn.execute(query, (title,)).fetchone()
 
     @staticmethod
     def change_category(paper_id: str, folder_id: int):
         query = """
-        UPDATE papers SET folder_id = ? WHERE id = ?
+        UPDATE papers SET folder_id = ? WHERE id = ? AND is_active = TRUE
         """
         DATABASE.execute_with_args(query, (folder_id, paper_id))
 
     @staticmethod
     def get_last_viewed_paper():
         query = """
-        SELECT id from papers ORDER BY last_view DESC, added_at DESC LIMIT 1
+        SELECT id from papers p WHERE p.is_active = TRUE
+        ORDER BY last_view DESC, added_at DESC LIMIT 1
         """
         return DATABASE.conn.execute(query).fetchone()
 
@@ -187,21 +190,22 @@ class Paper:
     @staticmethod
     def get_paper_path(paper_id):
         query = """
-        SELECT file_path FROM papers WHERE id = ?
+        SELECT file_path FROM papers 
+        WHERE id = ? AND is_active = TRUE
         """
         return DATABASE.conn.execute(query, (paper_id,)).fetchone()
 
     @staticmethod
     def update_paper_last_view_date(paper_id: str):
         query = """
-        UPDATE papers SET last_view = ? WHERE id = ?
+        UPDATE papers SET last_view = ? WHERE id = ? AND is_active = TRUE
         """
         DATABASE.execute_with_args(query, (datetime.datetime.now(), paper_id))
 
     @staticmethod
     def get_selected_folder_id():
         query = """
-        SELECT folder_id from papers WHERE is_active = FALSE
+        SELECT folder_id from papers
         ORDER BY last_view DESC, added_at DESC LIMIT 1
         """
         return DATABASE.conn.execute(query).fetchone()
@@ -209,11 +213,11 @@ class Paper:
     @staticmethod
     def get_paper_using_id(paper_id):
         query = """
-        SELECT p.id, p.arxiv_id, p.title, f.folder_name, p.file_path 
+        SELECT p.id, p.arxiv_id, p.title, f.folder_name, p.file_path, p.website_url
         FROM papers p
         INNER JOIN folders f
         ON p.folder_id = f.id
-        WHERE p.id = ?
+        WHERE p.id = ? and p.is_active = TRUE
         LIMIT 1
         """
         return DATABASE.conn.execute(query, (paper_id,)).fetchone()
@@ -230,7 +234,7 @@ class Paper:
         query = """
         SELECT p.id, p.title, f.folder_name FROM papers p inner join folders f
         ON p.folder_id = f.id
-        WHERE p.file_path = ?
+        WHERE p.file_path = ? and p.is_active = TRUE
         LIMIT 1
         """
         return DATABASE.conn.execute(query, (file_path,)).fetchone()
@@ -238,7 +242,7 @@ class Paper:
     @staticmethod
     def get_file_path_of_last_local_pdf():
         query = """
-        SELECT file_path FROM papers WHERE is_active = 1 and website_url is NULL
+        SELECT file_path FROM papers WHERE is_active = TRUE and website_url is NULL
         order by added_at DESC LIMIT 1
         """
         return DATABASE.conn.execute(query).fetchone()
